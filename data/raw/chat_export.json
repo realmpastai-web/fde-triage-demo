@@ -1,0 +1,707 @@
+{
+ "exported_at": "2026-10-14T09:00:00Z",
+ "conversations": [
+  {
+   "conversation_id": "chat_99618625",
+   "started_at": 1790012640,
+   "user": {
+    "email": "ravisato39@example.org",
+    "phone": "+44 7700 900462"
+   },
+   "first_response_seconds": 11520,
+   "messages": [
+    {
+     "from": "bot",
+     "text": "Hi! I'm Kes, the Kestrel assistant. How can I help?"
+    },
+    {
+     "from": "customer",
+     "text": "Lost my card"
+    },
+    {
+     "from": "bot",
+     "text": "Could you tell me a bit more?"
+    },
+    {
+     "from": "customer",
+     "text": "I think I left my Kestrel card at a restaurant last night. Can you block it and send a new one? Card ends in 8206."
+    }
+   ]
+  },
+  {
+   "conversation_id": "chat_73716063",
+   "started_at": 1788576060,
+   "user": {
+    "email": "sofiahaddad4@example.org",
+    "phone": "+44 7700 900165"
+   },
+   "first_response_seconds": 37440,
+   "messages": [
+    {
+     "from": "bot",
+     "text": "Hi! I'm Kes, the Kestrel assistant. How can I help?"
+    },
+    {
+     "from": "customer",
+     "text": "Standard vs Plus"
+    },
+    {
+     "from": "bot",
+     "text": "Could you tell me a bit more?"
+    },
+    {
+     "from": "customer",
+     "text": "What's the difference between Standard and Plus? Is Plus worth it if I travel twice a year?"
+    }
+   ]
+  },
+  {
+   "conversation_id": "chat_74070632",
+   "started_at": 1789855020,
+   "user": {
+    "email": "omar_menon69@mail.example.net",
+    "phone": "+1 202 555 0135"
+   },
+   "first_response_seconds": 9420,
+   "messages": [
+    {
+     "from": "bot",
+     "text": "Hi! I'm Kes, the Kestrel assistant. How can I help?"
+    },
+    {
+     "from": "customer",
+     "text": "sent money to wrong account"
+    },
+    {
+     "from": "bot",
+     "text": "Could you tell me a bit more?"
+    },
+    {
+     "from": "customer",
+     "text": "I sent $143.43 to the wrong account by mistake this morning. Can you reverse the transfer?"
+    }
+   ]
+  },
+  {
+   "conversation_id": "chat_67506198",
+   "started_at": 1790796780,
+   "user": {
+    "email": "julia_rossi89@mail.example.net",
+    "phone": "202-555-0144"
+   },
+   "first_response_seconds": 14340,
+   "messages": [
+    {
+     "from": "bot",
+     "text": "Hi! I'm Kes, the Kestrel assistant. How can I help?"
+    },
+    {
+     "from": "customer",
+     "text": "Card not working abroad"
+    },
+    {
+     "from": "bot",
+     "text": "Could you tell me a bit more?"
+    },
+    {
+     "from": "customer",
+     "text": "I'm travelling in Portugal and my card keeps getting declined at ATMs. Chip and PIN at shops works."
+    }
+   ]
+  },
+  {
+   "conversation_id": "chat_85180551",
+   "started_at": 1791576060,
+   "user": {
+    "email": "kenji_martin70@mail.example.net",
+    "phone": "+44 7700 900634"
+   },
+   "first_response_seconds": 28200,
+   "messages": [
+    {
+     "from": "bot",
+     "text": "Hi! I'm Kes, the Kestrel assistant. How can I help?"
+    },
+    {
+     "from": "customer",
+     "text": "PLAN FEE REFUND"
+    },
+    {
+     "from": "bot",
+     "text": "Could you tell me a bit more?"
+    },
+    {
+     "from": "customer",
+     "text": "CAN I GET A REFUND FOR THIS MONTH'S PLUS SUBSCRIPTION? I ONLY USED IT FOR TWO DAYS. !!!"
+    }
+   ]
+  },
+  {
+   "conversation_id": "chat_31820002",
+   "started_at": 1789061520,
+   "user": {
+    "email": "fatima.khan33@mail.example.net",
+    "phone": "+1 (202) 555-0161"
+   },
+   "first_response_seconds": 107880,
+   "messages": [
+    {
+     "from": "bot",
+     "text": "Hi! I'm Kes, the Kestrel assistant. How can I help?"
+    },
+    {
+     "from": "customer",
+     "text": "CSV export broken"
+    },
+    {
+     "from": "bot",
+     "text": "Could you tell me a bit more?"
+    },
+    {
+     "from": "customer",
+     "text": "Exporting transactions to CSV gives an error every time, even for one month."
+    }
+   ]
+  },
+  {
+   "conversation_id": "chat_14946555",
+   "started_at": 1791144120,
+   "user": {
+    "email": "tomwalsh40@mail.example.net",
+    "phone": "202-555-0140"
+   },
+   "first_response_seconds": 31620,
+   "messages": [
+    {
+     "from": "bot",
+     "text": "Hi! I'm Kes, the Kestrel assistant. How can I help?"
+    },
+    {
+     "from": "customer",
+     "text": "BALANCE SCREEN BLANK"
+    },
+    {
+     "from": "bot",
+     "text": "Could you tell me a bit more?"
+    },
+    {
+     "from": "customer",
+     "text": "THE HOME SCREEN SHOWS A BLANK BALANCE AND A SPINNING WHEEL FOREVER SINCE THE UPDATE. !!!"
+    }
+   ]
+  },
+  {
+   "conversation_id": "chat_29713448",
+   "started_at": 1791117600,
+   "user": {
+    "email": "arjunmoreau95@mail.example.net",
+    "phone": "+44 7700 900891"
+   },
+   "first_response_seconds": 14100,
+   "messages": [
+    {
+     "from": "bot",
+     "text": "Hi! I'm Kes, the Kestrel assistant. How can I help?"
+    },
+    {
+     "from": "customer",
+     "text": "password reset email"
+    },
+    {
+     "from": "bot",
+     "text": "Could you tell me a bit more?"
+    },
+    {
+     "from": "customer",
+     "text": "The password reset email never arrives. My email is arjunmoreau95@mail.example.net."
+    }
+   ]
+  },
+  {
+   "conversation_id": "chat_85763281",
+   "started_at": 1789291740,
+   "user": {
+    "email": "rahul_lopez79@mail.example.net",
+    "phone": "202-555-0191"
+   },
+   "first_response_seconds": 10200,
+   "messages": [
+    {
+     "from": "bot",
+     "text": "Hi! I'm Kes, the Kestrel assistant. How can I help?"
+    },
+    {
+     "from": "customer",
+     "text": "Transaction I didn't make"
+    },
+    {
+     "from": "bot",
+     "text": "Could you tell me a bit more?"
+    },
+    {
+     "from": "customer",
+     "text": "There's a charge of EUR 1198.37 from Nimbus Hotels that I didn't make. I still have my card with me."
+    }
+   ]
+  },
+  {
+   "conversation_id": "chat_32263686",
+   "started_at": 1791213480,
+   "user": {
+    "email": "kenjinair1@mail.example.net",
+    "phone": "+44 7700 900916"
+   },
+   "first_response_seconds": 6240,
+   "messages": [
+    {
+     "from": "bot",
+     "text": "Hi! I'm Kes, the Kestrel assistant. How can I help?"
+    },
+    {
+     "from": "customer",
+     "text": "Lost my card"
+    },
+    {
+     "from": "bot",
+     "text": "Could you tell me a bit more?"
+    },
+    {
+     "from": "customer",
+     "text": "I think I left my Kestrel card at a restaurant last night. Can you block it and send a new one? Card ends in 6595."
+    }
+   ]
+  },
+  {
+   "conversation_id": "chat_57418130",
+   "started_at": 1791746100,
+   "user": {
+    "email": "omar_menon69@mail.example.net",
+    "phone": "+1 202 555 0135"
+   },
+   "first_response_seconds": 12060,
+   "messages": [
+    {
+     "from": "bot",
+     "text": "Hi! I'm Kes, the Kestrel assistant. How can I help?"
+    },
+    {
+     "from": "customer",
+     "text": "App crashes"
+    },
+    {
+     "from": "bot",
+     "text": "Could you tell me a bit more?"
+    },
+    {
+     "from": "customer",
+     "text": "The app crashes every time I open the statements tab on my iPhone 13."
+    }
+   ]
+  },
+  {
+   "conversation_id": "chat_57313426",
+   "started_at": 1789772460,
+   "user": {
+    "email": "noah_martin99@example.com",
+    "phone": "+1 202 555 0153"
+   },
+   "first_response_seconds": 48360,
+   "messages": [
+    {
+     "from": "bot",
+     "text": "Hi! I'm Kes, the Kestrel assistant. How can I help?"
+    },
+    {
+     "from": "customer",
+     "text": "Taxa cobrada"
+    },
+    {
+     "from": "bot",
+     "text": "Could you tell me a bit more?"
+    },
+    {
+     "from": "customer",
+     "text": "Fui cobrado uma taxa de saque no caixa eletrônico que não entendo. Podem explicar?"
+    }
+   ]
+  },
+  {
+   "conversation_id": "chat_54466603",
+   "started_at": 1789721520,
+   "user": {
+    "email": "sofiamoreau31@mail.example.net",
+    "phone": "+44 7700 900688"
+   },
+   "first_response_seconds": 14820,
+   "messages": [
+    {
+     "from": "bot",
+     "text": "Hi! I'm Kes, the Kestrel assistant. How can I help?"
+    },
+    {
+     "from": "customer",
+     "text": "Charged twice"
+    },
+    {
+     "from": "bot",
+     "text": "Could you tell me a bit more?"
+    },
+    {
+     "from": "customer",
+     "text": "GreenGrocer charged me twice for the same purchase on 11/09. I contacted them two weeks ago, no answer."
+    }
+   ]
+  },
+  {
+   "conversation_id": "chat_46922114",
+   "started_at": 1790371320,
+   "user": {
+    "email": "diego_moreau87@mail.example.net",
+    "phone": "+44 7700 900562"
+   },
+   "first_response_seconds": 19080,
+   "messages": [
+    {
+     "from": "bot",
+     "text": "Hi! I'm Kes, the Kestrel assistant. How can I help?"
+    },
+    {
+     "from": "customer",
+     "text": "Lost my card"
+    },
+    {
+     "from": "bot",
+     "text": "Could you tell me a bit more?"
+    },
+    {
+     "from": "customer",
+     "text": "I think I left my Kestrel card at a restaurant last night. Can you block it and send a new one? Card ends in 3189."
+    }
+   ]
+  },
+  {
+   "conversation_id": "chat_77884372",
+   "started_at": 1788356940,
+   "user": {
+    "email": "lena.moreau30@example.com",
+    "phone": "+44 7700 900691"
+   },
+   "first_response_seconds": 55500,
+   "messages": [
+    {
+     "from": "bot",
+     "text": "Hi! I'm Kes, the Kestrel assistant. How can I help?"
+    },
+    {
+     "from": "customer",
+     "text": "Joint account?"
+    },
+    {
+     "from": "bot",
+     "text": "Could you tell me a bit more?"
+    },
+    {
+     "from": "customer",
+     "text": "Do you offer joint accounts? My partner and I want to share expenses."
+    }
+   ]
+  },
+  {
+   "conversation_id": "chat_61523572",
+   "started_at": 1790230920,
+   "user": {
+    "email": "RAVINAIR73@MAIL.EXAMPLE.NET",
+    "phone": "+44 7700 900194"
+   },
+   "first_response_seconds": 39300,
+   "messages": [
+    {
+     "from": "bot",
+     "text": "Hi! I'm Kes, the Kestrel assistant. How can I help?"
+    },
+    {
+     "from": "customer",
+     "text": "Proof of address"
+    },
+    {
+     "from": "bot",
+     "text": "Could you tell me a bit more?"
+    },
+    {
+     "from": "customer",
+     "text": "What documents do you accept as proof of address? I don't have utility bills in my name."
+    }
+   ]
+  },
+  {
+   "conversation_id": "chat_51868196",
+   "started_at": 1790269440,
+   "user": {
+    "email": "ravi_haddad40@example.org",
+    "phone": "+44 7700 900236"
+   },
+   "first_response_seconds": 14100,
+   "messages": [
+    {
+     "from": "bot",
+     "text": "Hi! I'm Kes, the Kestrel assistant. How can I help?"
+    },
+    {
+     "from": "customer",
+     "text": "login nahi ho raha"
+    },
+    {
+     "from": "bot",
+     "text": "Could you tell me a bit more?"
+    },
+    {
+     "from": "customer",
+     "text": "Mera account login nahi ho raha, OTP nahi aa raha hai. Kya karu? Bahut jaldi chahiye."
+    }
+   ]
+  },
+  {
+   "conversation_id": "chat_54925406",
+   "started_at": 1788863820,
+   "user": {
+    "email": "kenji.nair73@mail.example.net",
+    "phone": "+44 7700 900602"
+   },
+   "first_response_seconds": 36420,
+   "messages": [
+    {
+     "from": "bot",
+     "text": "Hi! I'm Kes, the Kestrel assistant. How can I help?"
+    },
+    {
+     "from": "customer",
+     "text": "LOST MY CARD"
+    },
+    {
+     "from": "bot",
+     "text": "Could you tell me a bit more?"
+    },
+    {
+     "from": "customer",
+     "text": "I THINK I LEFT MY KESTREL CARD AT A RESTAURANT LAST NIGHT. CAN YOU BLOCK IT AND SEND A NEW ONE? CARD ENDS IN 9136. !!!"
+    }
+   ]
+  },
+  {
+   "conversation_id": "chat_72637165",
+   "started_at": 1789429320,
+   "user": {
+    "email": "sofiagarcia23@example.com",
+    "phone": "+1 202 555 0116"
+   },
+   "first_response_seconds": 5100,
+   "messages": [
+    {
+     "from": "bot",
+     "text": "Hi! I'm Kes, the Kestrel assistant. How can I help?"
+    },
+    {
+     "from": "customer",
+     "text": "Card expiring"
+    },
+    {
+     "from": "bot",
+     "text": "Could you tell me a bit more?"
+    },
+    {
+     "from": "customer",
+     "text": "My card expires next month. Will a new one be sent automatically or do I need to order it?"
+    }
+   ]
+  },
+  {
+   "conversation_id": "chat_76154684",
+   "started_at": 1790753280,
+   "user": {
+    "email": "rahul.haddad95@example.org",
+    "phone": "+44 7700 900249"
+   },
+   "first_response_seconds": 17340,
+   "messages": [
+    {
+     "from": "bot",
+     "text": "Hi! I'm Kes, the Kestrel assistant. How can I help?"
+    },
+    {
+     "from": "customer",
+     "text": "Dispute - item never delivered"
+    },
+    {
+     "from": "bot",
+     "text": "Could you tell me a bit more?"
+    },
+    {
+     "from": "customer",
+     "text": "TechHaus never delivered my order and won't reply. I want to dispute the USD 2247.74 charge."
+    }
+   ]
+  },
+  {
+   "conversation_id": "chat_34426677",
+   "started_at": 1791867780,
+   "user": {
+    "email": "diegowalsh81@mail.example.net",
+    "phone": "+1 (202) 555-0139"
+   },
+   "first_response_seconds": 48780,
+   "messages": [
+    {
+     "from": "bot",
+     "text": "Hi! I'm Kes, the Kestrel assistant. How can I help?"
+    },
+    {
+     "from": "customer",
+     "text": "Verification stuck in review"
+    },
+    {
+     "from": "bot",
+     "text": "Could you tell me a bit more?"
+    },
+    {
+     "from": "customer",
+     "text": "I uploaded my ID 6 days ago and verification still says in review. I need to lift my limits."
+    }
+   ]
+  },
+  {
+   "conversation_id": "chat_60796073",
+   "started_at": 1791067080,
+   "user": {
+    "email": "rahul.haddad95@example.org",
+    "phone": "+44 7700 900249"
+   },
+   "first_response_seconds": 33600,
+   "messages": [
+    {
+     "from": "bot",
+     "text": "Hi! I'm Kes, the Kestrel assistant. How can I help?"
+    },
+    {
+     "from": "customer",
+     "text": "declined online"
+    },
+    {
+     "from": "bot",
+     "text": "Could you tell me a bit more?"
+    },
+    {
+     "from": "customer",
+     "text": "My card number is 4000 0566 5566 5556 and it was declined online at Corner Cafe. Please check what's wrong."
+    }
+   ]
+  },
+  {
+   "conversation_id": "chat_22812956",
+   "started_at": 1789494960,
+   "user": {
+    "email": "rahul.haddad95@example.org",
+    "phone": "+44 7700 900249"
+   },
+   "first_response_seconds": 15360,
+   "messages": [
+    {
+     "from": "bot",
+     "text": "Hi! I'm Kes, the Kestrel assistant. How can I help?"
+    },
+    {
+     "from": "customer",
+     "text": "Dispute - item never delivered"
+    },
+    {
+     "from": "bot",
+     "text": "Could you tell me a bit more?"
+    },
+    {
+     "from": "customer",
+     "text": "TechHaus never delivered my order and won't reply. I want to dispute the USD 150.51 charge."
+    }
+   ]
+  },
+  {
+   "conversation_id": "chat_39033808",
+   "started_at": 1789275480,
+   "user": {
+    "email": "kenji.nair73@mail.example.net",
+    "phone": "+44 7700 900602"
+   },
+   "first_response_seconds": 30420,
+   "messages": [
+    {
+     "from": "bot",
+     "text": "Hi! I'm Kes, the Kestrel assistant. How can I help?"
+    },
+    {
+     "from": "customer",
+     "text": "Scam text"
+    },
+    {
+     "from": "bot",
+     "text": "Could you tell me a bit more?"
+    },
+    {
+     "from": "customer",
+     "text": "Got a text pretending to be Kestrel asking for my PIN and I clicked the link. Did I get scammed?"
+    }
+   ]
+  },
+  {
+   "conversation_id": "chat_80092440",
+   "started_at": 1791323040,
+   "user": {
+    "email": "ravidas33@mail.example.net",
+    "phone": "+44 7700 900971"
+   },
+   "first_response_seconds": 24720,
+   "messages": [
+    {
+     "from": "bot",
+     "text": "Hi! I'm Kes, the Kestrel assistant. How can I help?"
+    },
+    {
+     "from": "customer",
+     "text": "login nahi ho raha"
+    },
+    {
+     "from": "bot",
+     "text": "Could you tell me a bit more?"
+    },
+    {
+     "from": "customer",
+     "text": "Mera account login nahi ho raha, OTP nahi aa raha hai. Kya karu? Bahut jaldi chahiye."
+    }
+   ]
+  },
+  {
+   "conversation_id": "chat_96773116",
+   "started_at": 1790624640,
+   "user": {
+    "email": "aishaclark15@mail.example.net",
+    "phone": "+44 7700 900731"
+   },
+   "first_response_seconds": 20640,
+   "messages": [
+    {
+     "from": "bot",
+     "text": "Hi! I'm Kes, the Kestrel assistant. How can I help?"
+    },
+    {
+     "from": "customer",
+     "text": "ATM fee?"
+    },
+    {
+     "from": "bot",
+     "text": "Could you tell me a bit more?"
+    },
+    {
+     "from": "customer",
+     "text": "Why was I charged an ATM fee? I thought the first withdrawals each month were free."
+    }
+   ]
+  }
+ ]
+}

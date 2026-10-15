@@ -1,0 +1,49 @@
+[project]
+name = "fde-triage-demo"
+version = "0.1.0"
+description = "Agentic support triage with a human approval gate, deployed for a (fictional) fintech client in a day."
+authors = [{ name = "Santhosh Madhava" }]
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi>=0.110",
+  "uvicorn>=0.29",
+  "httpx>=0.27",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.5", "mypy>=1.10"]
+
+[project.scripts]
+triage = "triage.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+triage = ["static/*.html"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
+ignore = ["UP031"]  # explicit %-formatting for timestamps is deliberate
+
+[tool.ruff.lint.per-file-ignores]
+"scripts/*" = ["E501"]  # data tables read better one row per line
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["src/triage"]

@@ -1,0 +1,14 @@
+services:
+  triage:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      # Leave both empty to run fully offline. Set one to use an LLM for classification and drafting.
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      TRIAGE_LLM: ${TRIAGE_LLM:-auto}
+    volumes:
+      - triage-data:/app/var
+volumes:
+  triage-data:

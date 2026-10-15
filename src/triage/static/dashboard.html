@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kestrel triage</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --ink:#1d2330; --mute:#667085; --line:#e4e7ec; --p1:#c4320a; --p2:#dc6803; --p3:#2e90fa; --p4:#98a2b3; --ok:#079455; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--ink); }
+  header { padding:14px 24px; background:var(--ink); color:#fff; display:flex; gap:16px; align-items:baseline; }
+  header h1 { font-size:16px; margin:0; } header span { color:#c7cbd4; font-size:12px; }
+  main { display:grid; grid-template-columns: 1.1fr 1fr; gap:16px; padding:16px 24px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:14px; }
+  .stats { grid-column:1/-1; display:grid; grid-template-columns:repeat(6,1fr); gap:12px; }
+  .stat b { display:block; font-size:22px; } .stat small { color:var(--mute); }
+  table { width:100%; border-collapse:collapse; } td,th { text-align:left; padding:6px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { font-size:12px; color:var(--mute); font-weight:600; }
+  tr.row { cursor:pointer; } tr.row:hover { background:#f2f4f7; } tr.sel { background:#eef4ff; }
+  .pill { display:inline-block; padding:1px 7px; border-radius:10px; color:#fff; font-size:12px; font-weight:600; }
+  .P1{background:var(--p1)} .P2{background:var(--p2)} .P3{background:var(--p3)} .P4{background:var(--p4)}
+  .tag { font-size:11px; color:var(--mute); border:1px solid var(--line); border-radius:4px; padding:0 4px; margin-left:4px; }
+  pre { white-space:pre-wrap; background:#f9fafb; border:1px solid var(--line); border-radius:6px; padding:10px; margin:6px 0; font:13px/1.45 ui-monospace,Menlo,monospace; }
+  textarea { width:100%; min-height:180px; font:13px/1.45 ui-monospace,Menlo,monospace; }
+  button { padding:7px 12px; border-radius:6px; border:1px solid var(--line); background:#fff; cursor:pointer; font-weight:600; }
+  button.go { background:var(--ok); color:#fff; border-color:var(--ok); }
+  .actions li { margin:2px 0; } .out { color:var(--p1); font-weight:600; } .mute { color:var(--mute); }
+  .audit { grid-column:1/-1; max-height:320px; overflow:auto; font-size:12px; }
+  .scroll { max-height:520px; overflow:auto; }
+</style>
+</head>
+<body>
+<header><h1>Kestrel support triage</h1><span id="hdr"></span></header>
+<main>
+  <section class="stats" id="stats"></section>
+  <section class="card"><h3>Approval queue</h3><div class="scroll"><table id="queue"><thead><tr><th>Pri</th><th>Subject</th><th>Team</th><th>Conf</th></tr></thead><tbody></tbody></table></div></section>
+  <section class="card" id="detail"><p class="mute">Select a ticket to review its draft and proposed actions.</p></section>
+  <section class="card audit"><h3>Audit trail <span class="mute" id="chain"></span></h3><table id="audit"><tbody></tbody></table></section>
+</main>
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let current = null, draftText = '';
+
+async function j(url, opts) { const r = await fetch(url, opts); if (!r.ok) throw new Error((await r.json()).detail || r.status); return r.json(); }
+
+async function loadStats() {
+  const m = await j('/api/metrics');
+  const sc = m.status_counts;
+  $('#hdr').textContent = `classifier: ${m.classifier}`;
+  const cells = [
+    ['Pending approval', sc.pending_approval || 0], ['Approved', sc.approved || 0], ['Rejected', sc.rejected || 0],
+    ['P1 / P2 pending', `${m.pending_by_priority.P1 || 0} / ${m.pending_by_priority.P2 || 0}`],
+    ['Flagged for human triage', m.flagged_for_human], ['Triage p50', `${(m.triage_latency_ms_p50 || 0).toFixed(1)} ms`]];
+  $('#stats').innerHTML = cells.map(([k, v]) => `<div class="card stat"><b>${esc(v)}</b><small>${esc(k)}</small></div>`).join('');
+  $('#chain').textContent = `${m.audit_entries} entries, hash chain ${m.audit_chain_ok ? 'verified' : 'BROKEN'}`;
+}
+
+async function loadQueue() {
+  const rows = await j('/api/queue');
+  $('#queue tbody').innerHTML = rows.map(r => `<tr class="row ${r.ticket_id === current ? 'sel' : ''}" data-id="${r.ticket_id}">
+    <td><span class="pill ${r.priority}">${r.priority}</span></td>
+    <td>${esc(r.subject || '(no subject)')}${r.language !== 'en' ? `<span class="tag">${r.language}</span>` : ''}${r.needs_human_triage ? '<span class="tag">route?</span>' : ''}${r.blocked ? '<span class="tag">blocked</span>' : ''}</td>
+    <td>${esc(r.team)}</td><td>${r.confidence.toFixed(2)}</td></tr>`).join('');
+  document.querySelectorAll('tr.row').forEach(tr => tr.onclick = () => show(tr.dataset.id));
+}
+
+async function show(id) {
+  current = id;
+  const t = await j(`/api/tickets/${id}`);
+  const r = t.result, c = r.classification;
+  draftText = r.draft.text;
+  const acts = r.actions.map(a => `<li class="${a.kind === 'outbound' ? 'out' : ''}">${a.kind} · ${esc(a.name)}${a.kind === 'outbound' ? ' (needs approval)' : ''}</li>`).join('');
+  const pending = t.status === 'pending_approval';
+  $('#detail').innerHTML = `
+    <h3><span class="pill ${t.priority}">${t.priority}</span> ${esc(r.ticket.subject)} <span class="mute">${id}</span></h3>
+    <div class="mute">${esc(c.category)} → ${esc(c.team)} · confidence ${c.confidence} · ${esc(c.rationale)}</div>
+    <pre>${esc(r.ticket.body)}</pre>
+    <b>Draft reply</b> <span class="mute">(${esc(r.draft.provider)})</span>
+    ${pending ? `<textarea id="reply">${esc(r.draft.text)}</textarea>` : `<pre>${esc(t.final_reply || r.draft.text)}</pre>`}
+    ${r.draft.policy_violations.length ? `<p class="out">Policy: ${esc(r.draft.policy_violations.join('; '))}</p>` : ''}
+    <b>Proposed actions</b><ul class="actions">${acts}</ul>
+    ${pending ? `<input id="who" placeholder="your name" value="${esc(localStorage.who || '')}">
+      <button class="go" id="ap">Approve & send</button> <button id="rj">Reject</button> <span id="msg" class="mute"></span>`
+      : `<p class="mute">Status: ${t.status} by ${esc(t.decided_by)}</p>`}`;
+  if (pending) {
+    $('#ap').onclick = () => decide('approve');
+    $('#rj').onclick = () => decide('reject');
+  }
+  loadQueue();
+}
+
+async function decide(kind) {
+  const who = $('#who').value.trim();
+  if (!who) { $('#msg').textContent = 'enter your name'; return; }
+  localStorage.who = who;
+  const body = { reviewer: who };
+  if (kind === 'approve') { const txt = $('#reply').value; if (txt !== draftText) body.edited_reply = txt; }
+  else body.reason = prompt('Reason for rejecting?') || 'no reason given';
+  try { await j(`/api/tickets/${current}/${kind}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); }
+  catch (e) { $('#msg').textContent = e.message; return; }
+  await Promise.all([show(current), loadStats(), loadAudit()]);
+}
+
+async function loadAudit() {
+  const rows = await j('/api/audit?limit=60');
+  $('#audit tbody').innerHTML = rows.map(e => `<tr><td class="mute">${new Date(e.ts * 1000).toLocaleTimeString()}</td>
+    <td>${esc(e.event)}</td><td>${esc(e.actor)}</td><td>${esc(e.ticket_id || '')}</td>
+    <td class="mute">${esc(JSON.stringify(e.data).slice(0, 140))}</td></tr>`).join('');
+}
+
+Promise.all([loadStats(), loadQueue(), loadAudit()]);
+setInterval(() => { loadStats(); loadAudit(); }, 5000);
+</script>
+</body>
+</html>

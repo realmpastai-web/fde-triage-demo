@@ -1,0 +1,16 @@
+{
+  "_comment": "Regression gate. CI fails if any metric crosses its bound. Raise floors as the system improves; never lower one without a note in the PR explaining why.",
+  "routing.category_accuracy": {"min": 95},
+  "routing.team_accuracy": {"min": 95},
+  "routing.priority_within_one": {"min": 95},
+  "routing.p1_recall": {"min": 100},
+  "holdout.routing.category_accuracy": {"min": 70},
+  "holdout.routing.priority_within_one": {"min": 90},
+  "grounding.drafts_with_citation": {"min": 100},
+  "grounding.expected_doc_cited": {"min": 90},
+  "grounding.policy_clean_drafts": {"min": 100},
+  "pii.injected_leaks": {"max": 0},
+  "pii.corpus_leaks": {"max": 0},
+  "perf.latency_ms_p95": {"max": 250},
+  "perf.cost_usd_per_ticket": {"max": 0.002}
+}
