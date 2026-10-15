@@ -16,6 +16,7 @@ EMAIL_RE = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-
 CARD_RE = re.compile(r"(?<![\w-])\d(?:[ -]?\d){12,18}(?![\w-])")
 # Optional +country, optional (area), then 2-4 more groups. Validated by digit count below.
 PHONE_RE = re.compile(r"(?<![\w+])(?:\+\d{1,3}[ .-]?)?(?:\(\d{1,4}\)[ .-]?)?\d{2,5}(?:[ .-]?\d{2,5}){1,3}(?![\w])")
+DATE_LIKE_RE = re.compile(r"^\d{1,4}[-/.]\d{1,2}[-/.]\d{2,4}(?:\s+\d{1,2})?$")
 LONG_NUMBER_RE = re.compile(r"(?<![\w])\d{11,}(?![\w])")
 
 
@@ -70,6 +71,8 @@ def redact(text: str) -> Redaction:
 
     def _phone(m: re.Match[str]) -> str:
         raw = m.group(0)
+        if DATE_LIKE_RE.match(raw.strip()):  # "10-08-2026 11" is a timestamp, not a phone
+            return raw
         n = len(_digits(raw))
         # Real phone numbers have 8-15 digits and at least one separator, a "+" or
         # parentheses. Bare digit runs (amounts, references) are left to LONG_NUMBER_RE.

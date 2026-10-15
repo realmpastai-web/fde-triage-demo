@@ -19,6 +19,8 @@ def test_card_requires_luhn_and_keeps_last_four() -> None:
 def test_does_not_eat_amounts_dates_or_references() -> None:
     text = "Sent $1,200.50 on 10/10/2026 14:53, ref TRF-52880D, card ends in 8020, 3 days ago"
     assert redact(text).text == text
+    for stamp in ["10-08-2026 11:03 PM", "2026-09-10 22:15", "28.09.2026 09:30"]:
+        assert redact(f"it failed on {stamp}").text == f"it failed on {stamp}"
 
 
 def test_find_leaks_is_format_insensitive() -> None:

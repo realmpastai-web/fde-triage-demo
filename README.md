@@ -122,7 +122,7 @@ Real output of `python -m triage eval --gate evals/thresholds.json` on the commi
 | Injected email + phone + card into every golden ticket | 123 | **0** |
 | Full client export (159 raw tickets, incl. customer emails and signatures) | 235 | **0** |
 
-Latency per ticket: p50 1.08 ms, p95 1.21 ms. Cost per ticket: $0 offline.
+Latency per ticket: p50 1.04 ms, p95 1.17 ms. Cost per ticket: $0 offline.
 The LLM path records real token cost per ticket; the gate caps it at $0.002.
 
 Tests: `36 passed` (`pytest -q`). Lint, `ruff format --check` and `mypy --strict` clean.
