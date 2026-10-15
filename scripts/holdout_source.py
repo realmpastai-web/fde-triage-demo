@@ -1,6 +1,7 @@
-"""Held-out set (20 tickets). Written AFTER the lexicon was tuned on golden.jsonl and never
-used for tuning. The gap between golden and holdout accuracy is the honest number: it is
-what the heuristic does on phrasing it has not seen. Run to (re)write data/golden/holdout.jsonl."""
+"""Held-out set v1 (20 tickets). Written AFTER the lexicon was tuned on golden.jsonl and never used to
+edit the lexicon. Now SEEN: it was inspected in Oct 2026 while fixing P1 recall, so it is a regression
+set only; scripts/holdout_v2_source.py is the newer one. The gap between golden and holdout accuracy is the honest number: it is
+what the heuristic does on phrasing it has not seen. Run to (re)write data/golden/holdout_v1.jsonl."""
 
 from __future__ import annotations
 
@@ -34,13 +35,13 @@ H = [
 
 
 def main() -> None:
-    out = Path(__file__).resolve().parents[1] / "data" / "golden" / "holdout.jsonl"
+    out = Path(__file__).resolve().parents[1] / "data" / "golden" / "holdout_v1.jsonl"
     with out.open("w", encoding="utf-8") as fh:
         for i, (subject, body, cat, prio, doc, lang) in enumerate(H, 1):
             fh.write(json.dumps({"id": f"H{i:03d}", "subject": subject, "body": body, "language": lang,
                                  "label": {"category": cat, "team": TEAM[cat], "priority": prio, "expected_doc": doc}},
                                 ensure_ascii=False) + "\n")
-    print(f"wrote {len(H)} holdout tickets to {out}")
+    print(f"wrote {len(H)} holdout v1 tickets to {out}")
 
 
 if __name__ == "__main__":

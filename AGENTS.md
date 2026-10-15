@@ -21,7 +21,7 @@ src/triage/
   audit.py      append-only, hash-chained JSONL audit log
   evals.py      eval harness + regression gate
   api.py, cli.py, static/dashboard.html
-data/           synthetic client data: raw exports, help docs, policies, golden + holdout sets
+data/           synthetic client data: raw exports, help docs, policies, golden set + holdout_v1 (seen) + holdout_v2 (new)
 evals/thresholds.json   the regression gate CI enforces
 ```
 
@@ -66,8 +66,9 @@ If `make check` is red before you start, stop and say so. Don't fix unrelated th
 - **The offline path must keep working.** `TRIAGE_LLM=off make check` is what CI runs. LLM
   features are additive and must fall back on any error.
 - **Golden labels follow `data/policies/routing-policy.md`.** If a label looks wrong, fix the label
-  and cite the policy line; don't bend the code to a bad label. Never edit `holdout.jsonl` to
-  make numbers go up: it exists to catch exactly that.
+  and cite the policy line; don't bend the code to a bad label. Never edit `holdout_v1.jsonl` or `holdout_v2.jsonl`
+  to make numbers go up: they exist to catch exactly that. Once a holdout has been used to choose a fix, it is
+  "seen": keep it as a regression set and write a new one before trusting the next number.
 
 ## Style
 

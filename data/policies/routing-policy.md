@@ -54,5 +54,7 @@ These stay **below P1** (near misses):
   for merchant disputes, P4 for Kestrel fee queries. Disputing the amount is not the same as not
   having made the payment.
 
-P1 tickets page the Fraud & Risk on-call and are never parked in the low-confidence triage queue.
+Tickets that meet one of these conditions are owned by **Fraud & Risk** (category `fraud_dispute`), even when
+they also mention a card, a login or a transfer. They page the Fraud & Risk on-call and are never parked in the
+low-confidence triage queue.
 

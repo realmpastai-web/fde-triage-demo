@@ -11,8 +11,8 @@ behind someone asking about savings interest. From their own helpdesk and chat e
 
 | Priority | Tickets | Median first response | Target | Over target |
 |---|---|---|---|---|
-| P1: money leaving now / account takeover | 10 | **324 min** | 15 min | 100% |
-| P2: money or access stuck | 38 | **417 min** | 60 min | 100% |
+| P1: money leaving now / account takeover | 13 | **283 min** | 15 min | 100% |
+| P2: money or access stuck | 35 | **422 min** | 60 min | 100% |
 | P3: broken, nothing at risk | 48 | 509 min | 240 min | 87.5% |
 | P4: questions, fees | 53 | 624 min | 480 min | 64.2% |
 
@@ -43,7 +43,8 @@ use it, which is why week 1 (below) runs it in shadow mode before anything else.
    no internal team names, must cite, no PII. Human edits are re-checked before sending.
 5. **Audit everything** to an append-only JSONL log where each line carries the hash of the previous
    one, so tampering is detectable (`triage audit --verify`).
-6. **Evaluate** on a 40-ticket golden set and a 20-ticket holdout, with a regression gate in CI.
+6. **Evaluate** on a 40-ticket golden set and two holdouts (v1, 20 tickets, now seen; v2, 21 tickets, new),
+   with a regression gate in CI that includes P1 recall and P1 over-escalation.
 7. **Ship** as a FastAPI service with a one-page dashboard (queue, draft review, metrics, audit trail),
    via `make demo` or `docker compose up`.
 
@@ -90,8 +91,8 @@ python -m triage run --reset                 # ingest + triage -> queue
 python -m triage queue --limit 5
 python -m triage show T-9c5c2250             # draft, citations, actions
 python -m triage approve T-9c5c2250 --reviewer priya
-python -m triage audit --verify              # OK: 922 entries, ok
-make check                                   # lint, mypy --strict, 36 tests, eval gate
+python -m triage audit --verify              # OK: 925 entries, ok
+make check                                   # lint, mypy --strict, 69 tests, eval gate
 ```
 
 No API key needed. To try the LLM path: `export OPENAI_API_KEY=...` (or `ANTHROPIC_API_KEY`),
@@ -102,41 +103,63 @@ optionally `TRIAGE_LLM=openai|anthropic|off`.
 Real output of `python -m triage eval --gate evals/thresholds.json` on the committed data
 (offline heuristic, Python 3.12, `reports/eval_report.md`):
 
-| Metric | Golden (n=40) | Holdout (n=20) |
-|---|---|---|
-| Category accuracy | 100.0% | 75.0% |
-| Team routing accuracy | 100.0% | 75.0% |
-| Priority exact | 100.0% | 65.0% |
-| Priority within one level | 100.0% | 95.0% |
-| P1 recall | 100.0% | **0.0%** (0 of 2) |
-| Under-prioritised tickets | 0 | 7 |
-| Flagged low-confidence → human triage | 0 | 10 |
-| Misroutes caught by that flag | 0/0 | **5/5** |
-| Drafts with ≥1 citation | 100.0% | 100.0% |
-| Expected help article cited | 92.5% | 75.0% |
-| Expected article is first citation | 85.0% | 75.0% |
-| Policy-clean drafts | 100.0% | 100.0% |
+| Metric | Golden (n=40) | Holdout v1, seen (n=20) | Holdout v2, new (n=21) |
+|---|---|---|---|
+| Category accuracy | 100.0% | 75.0% | 85.7% |
+| Team routing accuracy | 100.0% | 75.0% | 85.7% |
+| Priority exact | 100.0% | 75.0% | 85.7% |
+| Priority within one level | 100.0% | 95.0% | 90.5% |
+| P1 recall | 100.0% (5/5) | **100.0% (2/2)**, was 0/2 | **100.0% (7/7)** |
+| P1 precision | 100.0% | 100.0% | 100.0% |
+| P1 over-escalation (non-P1 paged as P1) | 0 of 35 | 0 of 18 | 0 of 14 |
+| Under-prioritised tickets | 0 | 5 | 3 |
+| Flagged low-confidence → human triage | 0 | 9 | 3 |
+| Misroutes caught by that flag | 0/0 | 5/5 | 2/3 |
+| Drafts with ≥1 citation | 100.0% | 100.0% | 100.0% |
+| Expected help article cited | 92.5% | 75.0% | 66.7% |
+| Expected article is first citation | 85.0% | 75.0% | 57.1% |
+| Policy-clean drafts | 100.0% | 100.0% | 100.0% |
 
 | PII check | PII values | Leaks |
 |---|---|---|
 | Injected email + phone + card into every golden ticket | 123 | **0** |
 | Full client export (159 raw tickets, incl. customer emails and signatures) | 235 | **0** |
 
-Latency per ticket: p50 1.04 ms, p95 1.17 ms. Cost per ticket: $0 offline.
+Latency per ticket: p50 1.1 ms, p95 1.25 ms. Cost per ticket: $0 offline.
 The LLM path records real token cost per ticket; the gate caps it at $0.002.
 
-Tests: `36 passed` (`pytest -q`). Lint, `ruff format --check` and `mypy --strict` clean.
+Tests: `69 passed` (`pytest -q`). Lint, `ruff format --check` and `mypy --strict` clean. Gate: 20 checks.
 
-**How to read this.** The golden set is what I tuned the lexicon against, so 100% there mostly proves
-the lexicon matches its own examples. The holdout was written afterwards in different words and never
-used to edit the lexicon (I looked at it once, which is why the retrieval prior exists; see trade-offs).
-**75% on unseen phrasing is the honest number for the offline path.** Two things make it usable anyway:
-every one of the 5 holdout misroutes was flagged low-confidence and sent to human triage rather than
-to the wrong specialist team, and nothing goes out without approval. The number I'd fix first is
-**P1 recall on holdout**: both P1s ("three small payments to a game I've never heard of", a
-"move your savings to a safe account" call) were caught as fraud but landed at P2. That is a
-lexicon gap on the most expensive failure mode, and it's exactly what the LLM path and the
-week-1 shadow run are for.
+**The P1 fix.** Both v1 P1s were caught as fraud but ranked P2, because P1 depended on a list of
+exact phrases. I wrote the missing rule into `routing-policy.md` as the client's policy (money moved
+without consent, someone else in the account, codes or credentials handed over, or an impersonation
+scam in progress → P1, with a deliberate bias toward over-ranking fraud) and implemented it in
+`escalation.py` as combinations of signal families (e.g. *non-consent* AND *money moved*), with
+explicit vetoes for the near misses the policy keeps at P2/P3: a charge the customer thinks may be
+theirs, a phishing attempt they ignored, a login that was them, merchant and fee disputes, a
+declined attempt. It runs regardless of category, and as a floor on the LLM path too.
+
+**Why holdout v2 exists.** Fixing v1 meant looking at it, so v1 is now a regression set, not a test.
+v2 (7 P1s, 6 fraud lookalikes that must stay below P1, 8 ordinary tickets in 4 languages) was
+committed *before* the fix ran against it, with its gate floors pre-registered. First run: P1 recall
+7/7 and no false P1s, but category/team accuracy only **52.4%**: every P1 was paged to the card,
+access or general team, and because P1s skip the low-confidence queue nothing caught it. The policy
+already says these belong to Fraud & Risk, so P1-rule tickets are now routed there (85.7%). That is
+the one change made after seeing v2, so v2 is "seen once" for routing; its P1 numbers are first-run.
+
+**How to read this.** Golden is what the lexicon was tuned on, so 100% there mostly proves it matches
+its own examples. **75–86% on unseen phrasing is the honest number for the offline path.** Two things
+make it usable anyway: misroutes below P1 mostly get flagged low-confidence and go to human triage
+(5/5 on v1, 2/3 on v2), and nothing goes out without approval. Caveat on v2: I wrote both the rule
+and v2 in the same session, so it is fresh to the code but not blind to its author. The real test is
+200 agent-labelled tickets in week 1.
+
+**What I'd fix first, now.** (1) v2's missed fraud lookalike: "my balance seems about 50 short… probably
+my mistake" landed at general/P4, two levels under its P2 label; it was flagged for a human, but a
+fraud-adjacent ticket should never sit at P4. (2) Grounding on v2: the expected article was cited for
+only 66.7% (the gate floor applies to golden only), mostly where the category was wrong. (3) Lexicon
+gaps on "wages" and a merchant "damage fee". All three go to the support lead as lexicon/label review,
+not as edits made against the holdout.
 
 ## How I'd deploy this at a real client in week 1
 
@@ -169,10 +192,17 @@ week 3 drafts-with-approval for P3/P4 first, P1/P2 last.
   edit, plus a BM25 prior over their own docs. It's deterministic, free, works with no network and
   makes CI meaningful. It also tops out around 75% on new phrasing. The LLM path is one env var away
   and shares the same eval and gate, so the comparison is a number, not an opinion.
-- **I looked at the holdout once.** After the first holdout run (55%) I added the retrieval prior
-  (holdout went to 75%) and picked the smallest prior weight that kept golden at 100%. No lexicon edits
-  after that. A purer setup would have a third, untouched test set; with 60 labels that felt like
-  theatre. With real data it's the first thing I'd add.
+- **I looked at holdout v1 twice.** After its first run (55%) I added the retrieval prior (75%), and
+  later its 0/2 P1 recall led to the fraud/takeover rule. So v1 is now a regression set (held to 100%
+  P1 recall) and v2 was written before the rule touched it. Each time a holdout picks a fix, it is
+  retired to "seen" and a new one is written; with real data, agents write it, not me.
+- **Over-ranking fraud on purpose.** The P1 rule escalates when a condition *plausibly* holds. It moved
+  the client export from 10 to 13 P1s (the 3 new ones: a text pretending to be Kestrel asked for a PIN
+  and the customer clicked the link). That is correct under the policy and costs the fraud on-call a
+  few pages a week; the gate caps over-escalation at 5% on golden and 10% on each holdout so the bias
+  can't drift into paging on every mention of a payment. Regex vetoes ("might be mine", "I hung up")
+  are the weak point: unusual wording can slip past either way, which is what the LLM path and shadow
+  mode are for.
 - **BM25, not embeddings.** 43 doc sections. BM25 is explainable ("these words matched"), needs no
   vector store and handled 5 languages well enough with a 50-word glossary. Embeddings are the
   obvious swap once the doc set or language mix grows; the `Retriever` interface stays.
@@ -197,10 +227,10 @@ src/triage/        the service (see AGENTS.md for a module map)
 data/raw/          synthetic helpdesk CSV + chat JSON export
 data/docs/         9 help-centre articles (retrieval corpus)
 data/policies/     routing + reply policy agreed in discovery
-data/golden/       golden.jsonl (40) and holdout.jsonl (20)
+data/golden/       golden.jsonl (40), holdout_v1.jsonl (20, seen), holdout_v2.jsonl (21, new)
 evals/             thresholds.json (the CI regression gate)
 scripts/           deterministic generators for all of data/
-tests/             36 pytest tests
+tests/             69 pytest tests
 reports/           latest eval report
 ```
 

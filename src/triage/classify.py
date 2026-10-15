@@ -16,6 +16,7 @@ from typing import Protocol
 import httpx
 
 from .config import CATEGORIES, LOW_CONFIDENCE, PRIORITIES, TRIAGE_QUEUE_TEAM
+from .escalation import fraud_escalation
 from .lexicon import LEXICON, P1_PHRASES, P2_PHRASES, P3_FLOOR, P4_PHRASES
 from .models import Classification, Ticket
 from .retrieval import Retriever
@@ -44,6 +45,10 @@ def _bump(priority: str, levels: int = 1) -> str:
 
 def assign_priority(category: str, text: str, urgency: str) -> tuple[str, str]:
     """Apply routing-policy.md. Returns (priority, reason)."""
+    # The fraud/takeover rule runs first and regardless of category: under-ranking fraud is the
+    # expensive mistake, and the category itself may be wrong on unseen phrasing.
+    if esc := fraud_escalation(text):
+        return "P1", esc.reason()
     low = text.lower()
     if hit := _match(low, P1_PHRASES, category):
         return "P1", f"P1 rule: '{hit}'"
@@ -98,9 +103,14 @@ class HeuristicClassifier:
         # Confidence: how clearly the winner beats the runner-up, damped when evidence is thin.
         evidence = min(lex[best], 9) / 9
         confidence = 0.0 if s1 == 0 else round(min(1.0, (s1 - s2) / s1 * 0.6 + evidence * 0.4), 3)
+        source = f"lexicon {hits[best][:4]}" if hits[best] else "doc prior only"
+        # A ticket that meets the fraud/takeover P1 rule is owned by Fraud & Risk (routing-policy.md),
+        # whatever else it mentions; otherwise a P1 would page the wrong team.
+        if best != "fraud_dispute" and fraud_escalation(ticket.text):
+            source = f"{source}; rerouted {best} -> fraud_dispute by the fraud/takeover rule"
+            best = "fraud_dispute"
         priority, why = assign_priority(best, ticket.text, ticket.urgency)
         needs_human = confidence < LOW_CONFIDENCE and priority != "P1"
-        source = f"lexicon {hits[best][:4]}" if hits[best] else "doc prior only"
         return Classification(
             category=best,
             team=TRIAGE_QUEUE_TEAM if needs_human else CATEGORIES[best][0],
@@ -172,14 +182,18 @@ class LLMClassifier:
                 raise ValueError(f"out-of-schema output: {data}")
             pin, pout = PRICES[self.provider]
             conf = float(data.get("confidence", 0.5))
+            rationale = str(data.get("rationale", ""))[:200]
+            # Deterministic safety floor: the policy's P1 rule overrides a model that under-ranks.
+            if (esc := fraud_escalation(ticket.text)) and (priority, category) != ("P1", "fraud_dispute"):
+                priority, category, rationale = "P1", "fraud_dispute", f"{rationale}; raised by {esc.reason()}"
             return Classification(
                 category=category,
                 team=CATEGORIES[category][0],
                 priority=priority,
                 confidence=conf,
-                rationale=str(data.get("rationale", ""))[:200],
+                rationale=rationale,
                 provider=self.name,
-                needs_human_triage=conf < LOW_CONFIDENCE,
+                needs_human_triage=conf < LOW_CONFIDENCE and priority != "P1",
                 cost_usd=(tin * pin + tout * pout) / 1e6,
             )
         except Exception as exc:  # noqa: BLE001 - any provider failure degrades to the offline path

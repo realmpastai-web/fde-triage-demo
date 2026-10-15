@@ -23,6 +23,10 @@ from .models import RawTicket, TriageResult
 from .pii import find_leaks, redact
 from .pipeline import Pipeline
 
+# holdout_v1 was inspected while fixing P1 recall (Oct 2026), so it is now a *seen* regression set.
+# holdout_v2 was written and committed before that fix ran against it (see scripts/holdout_v2_source.py).
+HOLDOUTS = ("holdout_v1", "holdout_v2")
+HOLDOUT_LABELS = {"holdout_v1": "Holdout v1, seen", "holdout_v2": "Holdout v2, new"}
 FRT_TARGET_MIN = {"P1": 15, "P2": 60, "P3": 240, "P4": 480}
 INJECT = " Contact me at jane.roe+test@example.com or +44 7700 900123. Card 4111 1111 1111 1111."
 
@@ -57,6 +61,7 @@ def routing_metrics(
 ) -> tuple[dict[str, Any], list[dict[str, Any]], list[TriageResult]]:
     results, misses = [], []
     cat = team = prio = prio1 = under = flagged_miss = miss = p1_total = p1_hit = flagged = 0
+    p1_pred = p1_false = 0
     for g in items:
         t = normalize(RawTicket("golden", g.id, "", "eval@example.com", "email", g.subject, g.body))
         r = pipe.triage(t)
@@ -73,6 +78,9 @@ def routing_metrics(
         if lab["priority"] == "P1":
             p1_total += 1
             p1_hit += c.priority == "P1"
+        if c.priority == "P1":
+            p1_pred += 1
+            p1_false += lab["priority"] != "P1"
         if not ok_cat:
             miss += 1
             flagged_miss += c.needs_human_triage
@@ -96,7 +104,12 @@ def routing_metrics(
             "priority_exact": _pct(prio, n),
             "priority_within_one": _pct(prio1, n),
             "under_prioritised": under,
+            "p1_total": p1_total,
             "p1_recall": _pct(p1_hit, p1_total),
+            # Of tickets ranked P1, how many deserved it (100 when nothing was ranked P1).
+            "p1_precision": _pct(p1_pred - p1_false, p1_pred) if p1_pred else 100.0,
+            # Non-P1 tickets wrongly paged as P1, as % of all non-P1 tickets: the cost side of the safety bias.
+            "p1_over_escalation": _pct(p1_false, n - p1_total),
             "flagged_for_human": flagged,
             "misroutes_caught_by_flag": f"{flagged_miss}/{miss}",
         },
@@ -213,11 +226,12 @@ def run_eval(settings: Settings | None = None, holdout: bool = True) -> dict[str
         "baseline": baseline_metrics(pipe, s),
         "misses": misses,
     }
-    hpath = s.golden_path.with_name("holdout.jsonl")
-    if holdout and hpath.exists():
-        h = load_golden(hpath)
-        h_routing, h_misses, h_results = routing_metrics(pipe, h)
-        report["holdout"] = {"routing": h_routing, "grounding": grounding_metrics(h, h_results), "misses": h_misses}
+    for name in HOLDOUTS:
+        hpath = s.golden_path.with_name(f"{name}.jsonl")
+        if holdout and hpath.exists():
+            h = load_golden(hpath)
+            h_routing, h_misses, h_results = routing_metrics(pipe, h)
+            report[name] = {"routing": h_routing, "grounding": grounding_metrics(h, h_results), "misses": h_misses}
     return report
 
 
@@ -240,34 +254,41 @@ def check_gate(report: dict[str, Any], thresholds: dict[str, Any]) -> list[str]:
 
 def to_markdown(r: dict[str, Any]) -> str:
     ro, gr, pi, pe = r["routing"], r["grounding"], r["pii"], r["perf"]
+    sets = [h for h in HOLDOUTS if h in r]
+    head = " | ".join([f"Golden (n={ro['n']})"] + [f"{HOLDOUT_LABELS[h]} (n={r[h]['routing']['n']})" for h in sets])
     lines = [
         "# Eval report",
         "",
         f"Provider: `{pe['provider']}`",
         "",
-        "| Metric | Golden (n=%d) | Holdout (n=%d) |" % (ro["n"], r.get("holdout", {}).get("routing", {}).get("n", 0)),
-        "|---|---|---|",
+        f"| Metric | {head} |",
+        "|---|" + "---|" * (1 + len(sets)),
     ]
-    ho = r.get("holdout", {})
-    hr, hg = ho.get("routing", {}), ho.get("grounding", {})
     for k, label in [
         ("category_accuracy", "Category accuracy %"),
         ("team_accuracy", "Team routing accuracy %"),
         ("priority_exact", "Priority exact %"),
         ("priority_within_one", "Priority within one level %"),
         ("p1_recall", "P1 recall %"),
+        ("p1_precision", "P1 precision %"),
+        ("p1_over_escalation", "P1 over-escalation (% of non-P1 paged as P1)"),
         ("under_prioritised", "Under-prioritised tickets"),
         ("flagged_for_human", "Flagged low-confidence -> human triage"),
         ("misroutes_caught_by_flag", "Misroutes caught by that flag"),
     ]:
-        lines.append(f"| {label} | {ro[k]} | {hr.get(k, '-')} |")
+        cells = [str(ro[k])] + [str(r[h]["routing"].get(k, "-")) for h in sets]
+        if k == "p1_recall":
+            cells = [f"{ro[k]} ({ro['p1_total']} P1s)"] + [
+                f"{r[h]['routing'][k]} ({r[h]['routing']['p1_total']} P1s)" for h in sets
+            ]
+        lines.append(f"| {label} | " + " | ".join(cells) + " |")
     for k, label in [
         ("drafts_with_citation", "Drafts with >=1 citation %"),
         ("expected_doc_cited", "Expected doc cited %"),
         ("expected_doc_top1", "Expected doc is first citation %"),
         ("policy_clean_drafts", "Policy-clean drafts %"),
     ]:
-        lines.append(f"| {label} | {gr[k]} | {hg.get(k, '-')} |")
+        lines.append(f"| {label} | " + " | ".join([str(gr[k])] + [str(r[h]["grounding"][k]) for h in sets]) + " |")
     lines += [
         "",
         "| PII check | Values | Leaks |",
@@ -288,7 +309,7 @@ def to_markdown(r: dict[str, Any]) -> str:
         lines.append(
             f"| {p} | {row['tickets']} | {row['median_frt_min']} | {row['target_min']} | {row['pct_over_target']}% |"
         )
-    for name, ms in [("golden", r["misses"]), ("holdout", ho.get("misses", []))]:
+    for name, ms in [("golden", r["misses"])] + [(h, r[h].get("misses", [])) for h in sets]:
         if ms:
             lines += [
                 "",

@@ -9,6 +9,12 @@ the policy says must stay P2/P3.
 
 Pre-registered gate floors (set before the first run, not tuned to it):
   holdout_v2 P1 recall >= 80%, holdout_v2 P1 over-escalation <= 10% of non-P1 tickets.
+What happened on the first run (2026-10-16), recorded so v2's status is clear: P1 recall 7/7, P1
+precision 100%, but category/team accuracy 52.4% because all 7 P1s were routed to card/access/general
+teams (P1 skips the low-confidence queue, so nothing caught it). The policy already says these
+tickets belong to Fraud & Risk, so the classifier now reroutes them (85.7% after). That is one
+policy-driven change made after seeing v2; no lexicon edits. v2 is therefore "seen once" for routing.
+
 Do not edit labels to make numbers go up. Run to (re)write data/golden/holdout_v2.jsonl."""
 
 from __future__ import annotations

@@ -33,7 +33,7 @@ check: lint typecheck test gate   ## everything CI checks
 
 data:               ## regenerate the synthetic client export and labelled sets
 	$(PY) scripts/generate_data.py
-	cd scripts && $(PY) golden_source.py && $(PY) holdout_source.py
+	cd scripts && $(PY) golden_source.py && $(PY) holdout_source.py && $(PY) holdout_v2_source.py
 
 docker:
 	docker compose up --build
